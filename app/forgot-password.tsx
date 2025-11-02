@@ -4,25 +4,22 @@ import { StyleSheet, TextInput, Alert, ActivityIndicator, TouchableOpacity, Text
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useState } from 'react';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { useTheme } from '@/contexts/theme-provider';
 import { Colors } from '@/constants/theme';
 
-export default function SignupScreen() {
+export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { theme } = useTheme();
   const colors = Colors[theme];
 
-  const handleSignup = () => {
+  const handleResetPassword = () => {
     setLoading(true);
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-        Alert.alert('Success', 'User account created successfully!');
+    sendPasswordResetEmail(auth, email)
+      .then(() => {
+        Alert.alert('Success', 'Password reset email sent successfully!');
         router.replace('/login');
       })
       .catch((error) => {
@@ -37,8 +34,8 @@ export default function SignupScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedText type="title" style={styles.title}>Create an Account</ThemedText>
-      <ThemedText style={styles.subtitle}>Start your journey with us</ThemedText>
+      <ThemedText type="title" style={styles.title}>Forgot Your Password?</ThemedText>
+      <ThemedText style={styles.subtitle}>Enter your email to receive a reset link</ThemedText>
 
       <ThemedView style={[styles.card, { backgroundColor: colors.card }]}>
         <TextInput
@@ -50,26 +47,18 @@ export default function SignupScreen() {
           autoCapitalize="none"
           placeholderTextColor={colors.icon}
         />
-        <TextInput
-          style={[styles.input, { color: colors.text, borderColor: colors.border, backgroundColor: colors.background }]}
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          placeholderTextColor={colors.icon}
-        />
 
         {loading ? (
           <ActivityIndicator size="large" color={colors.tint} />
         ) : (
-          <TouchableOpacity style={[styles.button, { backgroundColor: colors.tint }]} onPress={handleSignup}>
-            <Text style={styles.buttonText}>Sign Up</Text>
+          <TouchableOpacity style={[styles.button, { backgroundColor: colors.tint }]} onPress={handleResetPassword}>
+            <Text style={styles.buttonText}>Reset Password</Text>
           </TouchableOpacity>
         )}
       </ThemedView>
 
       <Link href="/login" style={styles.linkCenter}>
-        <ThemedText type="link">Already have an account? Log in</ThemedText>
+        <ThemedText type="link">Back to Login</ThemedText>
       </Link>
     </ThemedView>
   );
