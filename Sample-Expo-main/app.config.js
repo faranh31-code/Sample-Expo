@@ -12,8 +12,7 @@ module.exports = {
       supportsTablet: true,
       icon: "./assets/images/ios-light.png",
       infoPlist: {
-        NSUserTrackingUsageDescription: "Your data will be used to deliver personalized ads.",
-        GADApplicationIdentifier: "ca-app-pub-4386055252112057~6824696167"
+        NSUserTrackingUsageDescription: "Your data will be used to deliver personalized ads."
       },
       bundleIdentifier: "com.inertia.evergreenfocus"
     },
@@ -27,10 +26,7 @@ module.exports = {
       },
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,
-      package: "com.inertia.evergreenfocus",
-      config: {
-        googleMobileAdsAppId: "ca-app-pub-4386055252112057~6925710469"
-      }
+      package: "com.inertia.evergreenfocus"
     },
     web: {
       output: "static",
@@ -49,6 +45,13 @@ module.exports = {
             image: "./assets/images/Frame 6.png",
             backgroundColor: "#000000"
           }
+        }
+      ],
+      [
+        "./plugins/withAdMob.js",
+        {
+          androidAppId: "ca-app-pub-4386055252112057~6925710469",
+          iosAppId: "ca-app-pub-4386055252112057~6824696167"
         }
       ]
     ],
