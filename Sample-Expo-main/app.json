@@ -1,17 +1,22 @@
 {
   "expo": {
-    "name": "sample-expo",
-    "slug": "sample-expo",
-    "version": "1.0.0",
+    "name": "Evergreen Focus",
+    "slug": "evergreen-focus",
+    "version": "1.0.11",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "sampleexpo",
+    "icon": "./assets/images/ios-light.png",
+    "scheme": "evergreenfocus",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "icon": "./assets/images/ios-light.png",
+      "infoPlist": {
+        "NSUserTrackingUsageDescription": "Your data will be used to deliver personalized ads."
+      }
     },
     "android": {
+      "icon": "./assets/images/adaptive-icon.png",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -19,7 +24,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.inertia.evergreenfocus"
     },
     "web": {
       "output": "static",
@@ -30,11 +36,12 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/Frame 7.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
           "dark": {
+            "image": "./assets/images/Frame 6.png",
             "backgroundColor": "#000000"
           }
         }
@@ -43,6 +50,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "49fd00e6-d09d-48fd-8333-2d26155a4cb0"
+      }
+    },
+    "owner": "inertiadeals"
   }
 }

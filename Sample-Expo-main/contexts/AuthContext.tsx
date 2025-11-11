@@ -13,6 +13,8 @@ import {
   User,
   UserCredential
 } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '../firebaseConfig';
 import { auth } from '../firebaseConfig';
 
 interface AuthContextType {
@@ -26,6 +28,7 @@ interface AuthContextType {
   updatePassword: (newPassword: string) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   deleteAccount: (password: string) => Promise<void>;
+  reloadUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -57,8 +60,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signUp = async (email: string, password: string, displayName: string): Promise<UserCredential> => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    await updateProfile(userCredential.user, { displayName });
+    const uid = userCredential.user.uid;
+    const randomAvatar = `https://api.dicebear.com/7.x/bottts/png?seed=${encodeURIComponent(uid)}`;
+    await updateProfile(userCredential.user, { displayName, photoURL: randomAvatar });
+    try {
+      await setDoc(doc(db, 'users', uid), { displayName, photoURL: randomAvatar }, { merge: true });
+    } catch {}
     return userCredential;
+  };
+
+  const reloadUser = async (): Promise<void> => {
+    if (auth.currentUser) {
+      await auth.currentUser.reload();
+      // If photoURL missing, try fetching from Firestore user doc
+      try {
+        const snap = await getDoc(doc(db, 'users', auth.currentUser.uid));
+        if (snap.exists()) {
+          const data = snap.data() as { photoURL?: string; displayName?: string };
+          if (!auth.currentUser.photoURL && data?.photoURL) {
+            await updateProfile(auth.currentUser, { photoURL: data.photoURL });
+          }
+          if (!auth.currentUser.displayName && data?.displayName) {
+            await updateProfile(auth.currentUser, { displayName: data.displayName });
+          }
+        }
+      } catch {}
+      setUser(auth.currentUser);
+    }
   };
 
   const signIn = async (email: string, password: string): Promise<UserCredential> => {
@@ -76,6 +104,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const updateProfileInfo = async (displayName: string, photoURL?: string): Promise<void> => {
     if (auth.currentUser) {
       await updateProfile(auth.currentUser, { displayName, photoURL });
+      // Ensure changes are reflected immediately in the app
+      await auth.currentUser.reload();
+      setUser(auth.currentUser);
+      // Persist to Firestore for redundancy
+      try {
+        await setDoc(doc(db, 'users', auth.currentUser.uid), {
+          displayName: auth.currentUser.displayName || displayName,
+          photoURL: auth.currentUser.photoURL || photoURL || null,
+        }, { merge: true });
+      } catch {}
     }
   };
 
@@ -108,6 +146,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     updatePassword: updatePasswordHandler,
     resetPassword,
     deleteAccount,
+    reloadUser,
   };
 
   return (

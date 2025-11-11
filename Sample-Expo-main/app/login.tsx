@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 import React, { useState } from "react";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -20,6 +21,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { theme } = useTheme();
   const colors = Colors[theme];
 
@@ -64,6 +66,10 @@ export default function LoginScreen() {
       <ThemedText style={styles.subtitle}>Sign in to your forest</ThemedText>
 
       <View style={[styles.card, { backgroundColor: colors.card }]}>
+        <View style={styles.leafHeader}>
+          <MaterialCommunityIcons name="leaf" size={28} color={colors.tint} />
+          <ThemedText style={styles.leafTitle}>Evergreen Focus</ThemedText>
+        </View>
         <TextInput
           style={[
             styles.input,
@@ -80,21 +86,35 @@ export default function LoginScreen() {
           autoCapitalize="none"
           placeholderTextColor={colors.tabIconDefault}
         />
-        <TextInput
-          style={[
-            styles.input,
-            {
-              color: colors.text,
-              borderColor: colors.border,
-              backgroundColor: colors.background,
-            },
-          ]}
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          placeholderTextColor={colors.tabIconDefault}
-        />
+        <View style={styles.inputWrapper}>
+          <TextInput
+            style={[
+              styles.input,
+              {
+                color: colors.text,
+                borderColor: colors.border,
+                backgroundColor: colors.background,
+                paddingRight: 48,
+              },
+            ]}
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+            placeholderTextColor={colors.tabIconDefault}
+          />
+          <TouchableOpacity
+            accessibilityRole="button"
+            onPress={() => setShowPassword((v) => !v)}
+            style={styles.eyeButton}
+          >
+            <MaterialCommunityIcons
+              name={showPassword ? "eye-off" : "eye"}
+              size={22}
+              color={colors.tabIconDefault}
+            />
+          </TouchableOpacity>
+        </View>
 
         <Link href={{ pathname: "/forgot-password" }} style={styles.linkRight}>
           <ThemedText type="link">Forgot your password?</ThemedText>
@@ -166,6 +186,15 @@ const styles = StyleSheet.create({
     elevation: 5,
     marginBottom: 20,
   },
+  leafHeader: {
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  leafTitle: {
+    marginTop: 6,
+    fontSize: 16,
+    fontWeight: "600",
+  },
   input: {
     height: 50,
     width: "100%",
@@ -174,6 +203,18 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     fontSize: 16,
+  },
+  inputWrapper: {
+    position: "relative",
+    width: "100%",
+  },
+  eyeButton: {
+    position: "absolute",
+    right: 12,
+    top: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
   },
   button: {
     marginTop: 10,

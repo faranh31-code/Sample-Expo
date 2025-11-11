@@ -62,9 +62,18 @@ const HistoryView = () => {
       <View style={{ flex: 1, marginLeft: 16 }}>
         <ThemedText type="defaultSemiBold">Session {item.status}</ThemedText>
         <ThemedText type="default" style={{ opacity: 0.7, marginTop: 4 }}>
-          {item.timestamp.toDate().toLocaleDateString()} - {item.duration}{" "}
-          minutes
+          {item.timestamp.toDate().toLocaleString()}
         </ThemedText>
+      </View>
+      <View
+        style={[
+          styles.durationBadge,
+          { borderColor: themeColors.border, backgroundColor: themeColors.background },
+        ]}
+      >
+        <Text style={{ color: themeColors.text, fontWeight: "600" }}>
+          {item.duration} min
+        </Text>
       </View>
     </View>
   );
@@ -161,6 +170,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 2,
+  },
+  durationBadge: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    borderWidth: 1,
+    alignSelf: "center",
   },
 });
 

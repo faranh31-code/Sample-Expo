@@ -22,6 +22,8 @@ import {
   useTheme,
 } from "@/contexts/theme-provider";
 import { useProtectedRoute } from "@/hooks/useProtectedRoute";
+import { useEffect } from "react";
+import { initMobileAds } from "@/utils/ads";
 
 enableScreens(true);
 
@@ -32,6 +34,10 @@ function AppContent() {
 
   const { theme } = useTheme();
   const navigationTheme = theme === "dark" ? DarkTheme : DefaultTheme;
+
+  useEffect(() => {
+    initMobileAds();
+  }, []);
 
   // This check is crucial. It prevents the UI from rendering and flashing
   // a screen (e.g., login) before the protected route hook has a chance

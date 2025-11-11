@@ -1,0 +1,67 @@
+module.exports = {
+  expo: {
+    name: "Evergreen Focus",
+    slug: "evergreen-focus",
+    version: "1.0.11",
+    orientation: "portrait",
+    icon: "./assets/images/ios-light.png",
+    scheme: "evergreenfocus",
+    userInterfaceStyle: "automatic",
+    newArchEnabled: true,
+    ios: {
+      supportsTablet: true,
+      icon: "./assets/images/ios-light.png",
+      infoPlist: {
+        NSUserTrackingUsageDescription: "Your data will be used to deliver personalized ads.",
+        GADApplicationIdentifier: "ca-app-pub-4386055252112057~6824696167"
+      },
+      bundleIdentifier: "com.inertia.evergreenfocus"
+    },
+    android: {
+      icon: "./assets/images/adaptive-icon.png",
+      adaptiveIcon: {
+        backgroundColor: "#E6F4FE",
+        foregroundImage: "./assets/images/android-icon-foreground.png",
+        backgroundImage: "./assets/images/android-icon-background.png",
+        monochromeImage: "./assets/images/android-icon-monochrome.png"
+      },
+      edgeToEdgeEnabled: true,
+      predictiveBackGestureEnabled: false,
+      package: "com.inertia.evergreenfocus",
+      config: {
+        googleMobileAdsAppId: "ca-app-pub-4386055252112057~6925710469"
+      }
+    },
+    web: {
+      output: "static",
+      favicon: "./assets/images/favicon.png"
+    },
+    plugins: [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          image: "./assets/images/Frame 7.png",
+          imageWidth: 200,
+          resizeMode: "contain",
+          backgroundColor: "#ffffff",
+          dark: {
+            image: "./assets/images/Frame 6.png",
+            backgroundColor: "#000000"
+          }
+        }
+      ]
+    ],
+    experiments: {
+      typedRoutes: true,
+      reactCompiler: true
+    },
+    extra: {
+      router: {},
+      eas: {
+        projectId: "49fd00e6-d09d-48fd-8333-2d26155a4cb0"
+      }
+    },
+    owner: "inertiadeals"
+  }
+};

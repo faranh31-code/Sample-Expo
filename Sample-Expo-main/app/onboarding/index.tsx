@@ -34,7 +34,7 @@ type OnboardingSlide = {
 
 const onboardingSlides: OnboardingSlide[] = [
   {
-    icon: "tree-pine",
+    icon: "pine-tree",
     title: "Welcome to Evergreen Focus",
     description:
       "Plant the seeds of productivity and watch your digital forest grow with every completed focus session.",
@@ -188,7 +188,7 @@ const OnboardingScreen = () => {
             <View style={styles.iconContainer}>
               <MaterialCommunityIcons
                 name={slide.icon} // This is now strictly typed
-                size={150}
+                size={92}
                 color={themeColors.tint}
               />
             </View>
@@ -216,32 +216,34 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 40,
+    paddingHorizontal: 20,
   },
   iconContainer: {
-    flex: 0.4,
+    flex: 0.3,
     justifyContent: "center",
     alignItems: "center",
   },
   textContainer: {
-    flex: 0.3,
+    flex: 0.28,
   },
   title: {
     textAlign: "center",
-    marginBottom: 16,
+    marginBottom: 8,
+    fontSize: 28,
+    lineHeight: 32,
   },
   description: {
     textAlign: "center",
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 13,
+    lineHeight: 18,
     opacity: 0.8,
   },
   footerContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
-    height: 80,
+    paddingHorizontal: 16,
+    height: 56,
     position: "absolute",
     bottom: 0,
     left: 0,
@@ -252,25 +254,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   paginationDot: {
-    height: 10,
-    borderRadius: 5,
-    marginHorizontal: 4,
+    height: 8,
+    borderRadius: 4,
+    marginHorizontal: 3,
   },
   skipButton: {
-    padding: 10,
+    padding: 8,
   },
   skipText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "500",
   },
   getStartedButton: {
-    paddingVertical: 14,
-    paddingHorizontal: 32,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     borderRadius: 99,
   },
   getStartedText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: "bold",
   },
 });
