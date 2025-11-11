@@ -10,7 +10,19 @@
         "gradleCommand": ":app:assembleRelease"
       },
       "ios": {
-        "autoIncrement": "buildNumber"
+        "autoIncrement": "buildNumber",
+        "buildConfiguration": "Release"
+      }
+    },
+    "production-store": {
+      "android": {
+        "buildType": "app-bundle",
+        "autoIncrement": "versionCode"
+      },
+      "ios": {
+        "autoIncrement": "buildNumber",
+        "buildConfiguration": "Release",
+        "distribution": "store"
       }
     }
   },
