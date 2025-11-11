@@ -1,7 +1,8 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useOnboarding } from "@/contexts/OnboardingContext";
 import { useRouter, useSegments } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { showAppOpenAd } from "@/utils/ads";
 
 /**
  * ============================================================================
@@ -31,6 +32,7 @@ export function useProtectedRoute() {
   const { hasOnboarded, isLoading: onboardingLoading } = useOnboarding();
   const segments = useSegments();
   const router = useRouter();
+  const lastHadUser = useRef<boolean | null>(null);
 
   useEffect(() => {
     // Wait for auth, onboarding, and segments to be loaded before executing any logic.
@@ -62,7 +64,15 @@ export function useProtectedRoute() {
       // If they are on a public screen (like login, signup, or onboarding itself),
       // they should be redirected to the main dashboard.
       else if (user && !inTabsGroup) {
-        router.replace("/");
+        const previouslyLoggedIn = lastHadUser.current === true;
+        lastHadUser.current = true;
+        // Only show app-open when transitioning from logged-out to logged-in
+        showAppOpenAd()
+          .catch(() => {})
+          .finally(() => router.replace("/"));
+      }
+      else if (!user) {
+        lastHadUser.current = false;
       }
     }
   }, [user, hasOnboarded, authLoading, onboardingLoading, segments, router]);

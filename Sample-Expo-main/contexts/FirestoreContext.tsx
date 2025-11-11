@@ -4,6 +4,7 @@ import {
     deleteDoc,
     doc,
     DocumentData,
+    getDocs,
     onSnapshot,
     orderBy,
     query,
@@ -29,6 +30,7 @@ interface FirestoreContextType {
   loading: boolean;
   addSession: (duration: number, status: 'Completed' | 'Failed') => Promise<void>;
   deleteSession: (sessionId: string) => Promise<void>;
+  deleteAllUserData: () => Promise<void>;
   getSessionsByDate: (date: Date) => FocusSession[];
   getDayStreak: () => number;
   clearFilter: () => void;
@@ -97,6 +99,7 @@ export const FirestoreProvider: React.FC<FirestoreProviderProps> = ({ children }
     }
 
     const filtered = sessions.filter(session => {
+      if (!session.timestamp) return false;
       const sessionDate = session.timestamp.toDate();
       const filterDateOnly = new Date(filterDate);
       filterDateOnly.setHours(0, 0, 0, 0);
@@ -127,8 +130,20 @@ export const FirestoreProvider: React.FC<FirestoreProviderProps> = ({ children }
     await deleteDoc(doc(db, 'users', user.uid, 'focus_sessions', sessionId));
   };
 
+  const deleteAllUserData = async (): Promise<void> => {
+    if (!user) return;
+    const sessionsRef = collection(db, 'users', user.uid, 'focus_sessions');
+    const snapshot = await getDocs(sessionsRef);
+    const deletions: Promise<void>[] = [];
+    snapshot.forEach((d) => {
+      deletions.push(deleteDoc(doc(db, 'users', user.uid, 'focus_sessions', d.id)));
+    });
+    await Promise.all(deletions);
+  };
+
   const getSessionsByDate = (date: Date): FocusSession[] => {
     return sessions.filter(session => {
+      if (!session.timestamp) return false;
       const sessionDate = session.timestamp.toDate();
       return sessionDate.toDateString() === date.toDateString();
     });
@@ -137,7 +152,7 @@ export const FirestoreProvider: React.FC<FirestoreProviderProps> = ({ children }
   const getDayStreak = (): number => {
     if (sessions.length === 0) return 0;
 
-    const completedSessions = sessions.filter(session => session.status === 'Completed');
+    const completedSessions = sessions.filter(session => session.status === 'Completed' && !!session.timestamp);
     if (completedSessions.length === 0) return 0;
 
     const today = new Date();
@@ -148,6 +163,7 @@ export const FirestoreProvider: React.FC<FirestoreProviderProps> = ({ children }
 
     for (let i = 0; i < 365; i++) { // Check up to 365 days back
       const hasSession = completedSessions.some(session => {
+        if (!session.timestamp) return false;
         const sessionDate = session.timestamp.toDate();
         sessionDate.setHours(0, 0, 0, 0);
         return sessionDate.getTime() === currentDate.getTime();
@@ -177,6 +193,7 @@ export const FirestoreProvider: React.FC<FirestoreProviderProps> = ({ children }
     loading,
     addSession,
     deleteSession,
+    deleteAllUserData,
     getSessionsByDate,
     getDayStreak,
     clearFilter,
