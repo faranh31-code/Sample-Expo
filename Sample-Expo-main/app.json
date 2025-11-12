@@ -14,7 +14,7 @@
       "infoPlist": {
         "NSUserTrackingUsageDescription": "Your data will be used to deliver personalized ads."
       },
-      "buildNumber": "2"
+      "buildNumber": "4"
     },
     "android": {
       "icon": "./assets/images/adaptive-icon.png",
