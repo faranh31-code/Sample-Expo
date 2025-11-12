@@ -12,9 +12,11 @@ module.exports = {
       supportsTablet: true,
       icon: "./assets/images/ios-light.png",
       infoPlist: {
-        NSUserTrackingUsageDescription: "Your data will be used to deliver personalized ads."
+        NSUserTrackingUsageDescription: "Your data will be used to deliver personalized ads.",
+        ITSAppUsesNonExemptEncryption: false
       },
-      bundleIdentifier: "com.inertia.evergreenfocus"
+      bundleIdentifier: "com.inertia.evergreenfocus",
+      buildNumber: "3"
     },
     android: {
       icon: "./assets/images/adaptive-icon.png",
