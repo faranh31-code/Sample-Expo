@@ -21,7 +21,7 @@ import HistoryView from "@/components/dashboard/HistoryView";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
-import { BannerAd, BannerAdSize, showRewardedAd, IDS as ADS_IDS } from "@/utils/ads";
+import { AdBanner, showRewardedAd } from "@/utils/ads";
 
 export default function DashboardScreen() {
   const { user, loading: authLoading, reloadUser, logout } = useAuth();
@@ -78,7 +78,7 @@ export default function DashboardScreen() {
   return (
     <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
       <View style={{ alignItems: "center", marginBottom: 6 }}>
-        <BannerAd unitId={ADS_IDS.BANNER} size={BannerAdSize.BANNER} />
+        <AdBanner />
       </View>
       <View style={styles.appHeader}>
         <TouchableOpacity

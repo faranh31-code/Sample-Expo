@@ -7,7 +7,8 @@ import {
   RewardedAd,
   AdEventType,
   RewardedAdEventType,
-  TestIds
+  TestIds,
+  MobileAds
 } from 'react-native-google-mobile-ads';
 
 // Real production Ad Unit IDs
@@ -47,18 +48,22 @@ let interstitialAd: InterstitialAd | null = null;
 let isInterstitialLoaded = false;
 
 export const loadInterstitialAd = () => {
-  interstitialAd = InterstitialAd.createForAdRequest(INTERSTITIAL_AD_UNIT_ID);
-  
-  const unsubscribeLoaded = interstitialAd.addAdEventListener(AdEventType.LOADED, () => {
-    isInterstitialLoaded = true;
-  });
+  try {
+    interstitialAd = InterstitialAd.createForAdRequest(INTERSTITIAL_AD_UNIT_ID);
+    
+    const unsubscribeLoaded = interstitialAd.addAdEventListener(AdEventType.LOADED, () => {
+      isInterstitialLoaded = true;
+    });
 
-  const unsubscribeClosed = interstitialAd.addAdEventListener(AdEventType.CLOSED, () => {
-    isInterstitialLoaded = false;
-    loadInterstitialAd(); // Reload for next time
-  });
+    const unsubscribeClosed = interstitialAd.addAdEventListener(AdEventType.CLOSED, () => {
+      isInterstitialLoaded = false;
+      loadInterstitialAd(); // Reload for next time
+    });
 
-  interstitialAd.load();
+    interstitialAd.load();
+  } catch (error) {
+    console.error('Error loading interstitial ad:', error);
+  }
 };
 
 export const showInterstitialAd = async (): Promise<boolean> => {
@@ -79,18 +84,22 @@ let rewardedAd: RewardedAd | null = null;
 let isRewardedLoaded = false;
 
 export const loadRewardedAd = () => {
-  rewardedAd = RewardedAd.createForAdRequest(REWARDED_AD_UNIT_ID);
-  
-  const unsubscribeLoaded = rewardedAd.addAdEventListener(RewardedAdEventType.LOADED, () => {
-    isRewardedLoaded = true;
-  });
+  try {
+    rewardedAd = RewardedAd.createForAdRequest(REWARDED_AD_UNIT_ID);
+    
+    const unsubscribeLoaded = rewardedAd.addAdEventListener(RewardedAdEventType.LOADED, () => {
+      isRewardedLoaded = true;
+    });
 
-  const unsubscribeClosed = rewardedAd.addAdEventListener(RewardedAdEventType.CLOSED, () => {
-    isRewardedLoaded = false;
-    loadRewardedAd(); // Reload for next time
-  });
+    const unsubscribeEarned = rewardedAd.addAdEventListener(RewardedAdEventType.EARNED_REWARD, () => {
+      isRewardedLoaded = false;
+      loadRewardedAd(); // Reload for next time
+    });
 
-  rewardedAd.load();
+    rewardedAd.load();
+  } catch (error) {
+    console.error('Error loading rewarded ad:', error);
+  }
 };
 
 export const showRewardedAd = async (): Promise<boolean> => {
@@ -106,11 +115,35 @@ export const showRewardedAd = async (): Promise<boolean> => {
   return false;
 };
 
-// Initialize ads
-export const initAds = () => {
-  loadInterstitialAd();
-  loadRewardedAd();
+// Initialize Mobile Ads SDK
+let isInitialized = false;
+
+export const initMobileAds = async () => {
+  if (isInitialized) {
+    return;
+  }
+
+  try {
+    await MobileAds().initialize();
+    isInitialized = true;
+    console.log('AdMob SDK initialized successfully');
+    
+    // Load ads after initialization with a delay
+    setTimeout(() => {
+      try {
+        loadInterstitialAd();
+        loadRewardedAd();
+      } catch (error) {
+        console.error('Error loading ads:', error);
+      }
+    }, 1000);
+  } catch (error) {
+    console.error('Error initializing AdMob SDK:', error);
+  }
 };
+
+// Legacy function name for backward compatibility
+export const initAds = initMobileAds;
 
 // Banner Ad Component
 export const AdBanner: React.FC = () => {
@@ -121,6 +154,9 @@ export const AdBanner: React.FC = () => {
         size={BannerAdSize.BANNER}
         requestOptions={{
           requestNonPersonalizedAdsOnly: false,
+        }}
+        onAdFailedToLoad={(error) => {
+          console.error('Banner ad failed to load:', error);
         }}
       />
     </View>

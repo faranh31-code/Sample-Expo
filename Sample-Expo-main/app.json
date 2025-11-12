@@ -13,7 +13,8 @@
       "icon": "./assets/images/ios-light.png",
       "infoPlist": {
         "NSUserTrackingUsageDescription": "Your data will be used to deliver personalized ads."
-      }
+      },
+      "buildNumber": "2"
     },
     "android": {
       "icon": "./assets/images/adaptive-icon.png",
