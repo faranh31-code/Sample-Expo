@@ -16,7 +16,7 @@ module.exports = {
         ITSAppUsesNonExemptEncryption: false
       },
       bundleIdentifier: "com.inertia.evergreenfocus",
-      buildNumber: "3"
+      buildNumber: "5"
     },
     android: {
       icon: "./assets/images/adaptive-icon.png",

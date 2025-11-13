@@ -46,7 +46,10 @@ const withAdMob = (config, { androidAppId, iosAppId }) => {
   // Configure iOS
   config = withInfoPlist(config, (config) => {
     config.modResults.GADApplicationIdentifier = iosAppId;
-    config.modResults.GADIsAdManagerApp = true;
+    // Ensure we are not marked as an Ad Manager app; this can cause issues when using standard AdMob
+    if (config.modResults.GADIsAdManagerApp) {
+      delete config.modResults.GADIsAdManagerApp;
+    }
     return config;
   });
 

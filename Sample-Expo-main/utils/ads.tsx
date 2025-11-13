@@ -31,10 +31,18 @@ const AD_UNIT_IDS = {
   },
 };
 
+const TEST_IDS = {
+  BANNER: TestIds.BANNER,
+  INTERSTITIAL: TestIds.INTERSTITIAL,
+  REWARDED: TestIds.REWARDED,
+  APP_OPEN: TestIds.APP_OPEN,
+} as const;
+
 // Get platform-specific ad unit ID
 const getAdUnitId = (adType: keyof typeof AD_UNIT_IDS): string => {
   const ids = AD_UNIT_IDS[adType];
-  return Platform.select(ids) || TestIds.BANNER;
+  const platformId = Platform.select(ids);
+  return platformId || TEST_IDS[adType];
 };
 
 // Export ad unit IDs
@@ -46,9 +54,18 @@ export const APP_OPEN_AD_UNIT_ID = getAdUnitId('APP_OPEN');
 // Interstitial Ad
 let interstitialAd: InterstitialAd | null = null;
 let isInterstitialLoaded = false;
+let interstitialUnsubscribers: Array<() => void> = [];
 
 export const loadInterstitialAd = () => {
   try {
+    // cleanup previous listeners
+    if (interstitialUnsubscribers.length) {
+      interstitialUnsubscribers.forEach((u) => {
+        try { u(); } catch {}
+      });
+      interstitialUnsubscribers = [];
+    }
+
     interstitialAd = InterstitialAd.createForAdRequest(INTERSTITIAL_AD_UNIT_ID);
     
     const unsubscribeLoaded = interstitialAd.addAdEventListener(AdEventType.LOADED, () => {
@@ -57,8 +74,11 @@ export const loadInterstitialAd = () => {
 
     const unsubscribeClosed = interstitialAd.addAdEventListener(AdEventType.CLOSED, () => {
       isInterstitialLoaded = false;
-      loadInterstitialAd(); // Reload for next time
+      // small delay to avoid race during screen transitions
+      setTimeout(() => loadInterstitialAd(), 500);
     });
+
+    interstitialUnsubscribers.push(unsubscribeLoaded, unsubscribeClosed);
 
     interstitialAd.load();
   } catch (error) {
@@ -70,6 +90,9 @@ export const showInterstitialAd = async (): Promise<boolean> => {
   if (isInterstitialLoaded && interstitialAd) {
     try {
       await interstitialAd.show();
+      // reset state and schedule reload
+      isInterstitialLoaded = false;
+      setTimeout(() => loadInterstitialAd(), 500);
       return true;
     } catch (error) {
       console.error('Error showing interstitial ad:', error);
@@ -82,9 +105,18 @@ export const showInterstitialAd = async (): Promise<boolean> => {
 // Rewarded Ad
 let rewardedAd: RewardedAd | null = null;
 let isRewardedLoaded = false;
+let rewardedUnsubscribers: Array<() => void> = [];
 
 export const loadRewardedAd = () => {
   try {
+    // cleanup previous listeners
+    if (rewardedUnsubscribers.length) {
+      rewardedUnsubscribers.forEach((u) => {
+        try { u(); } catch {}
+      });
+      rewardedUnsubscribers = [];
+    }
+
     rewardedAd = RewardedAd.createForAdRequest(REWARDED_AD_UNIT_ID);
     
     const unsubscribeLoaded = rewardedAd.addAdEventListener(RewardedAdEventType.LOADED, () => {
@@ -93,8 +125,10 @@ export const loadRewardedAd = () => {
 
     const unsubscribeEarned = rewardedAd.addAdEventListener(RewardedAdEventType.EARNED_REWARD, () => {
       isRewardedLoaded = false;
-      loadRewardedAd(); // Reload for next time
+      setTimeout(() => loadRewardedAd(), 500);
     });
+
+    rewardedUnsubscribers.push(unsubscribeLoaded, unsubscribeEarned);
 
     rewardedAd.load();
   } catch (error) {
@@ -106,6 +140,8 @@ export const showRewardedAd = async (): Promise<boolean> => {
   if (isRewardedLoaded && rewardedAd) {
     try {
       await rewardedAd.show();
+      isRewardedLoaded = false;
+      setTimeout(() => loadRewardedAd(), 500);
       return true;
     } catch (error) {
       console.error('Error showing rewarded ad:', error);
