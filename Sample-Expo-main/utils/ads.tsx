@@ -1,14 +1,14 @@
 import React from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
-import { 
-  BannerAd, 
-  BannerAdSize, 
-  InterstitialAd,
-  RewardedAd,
+import { AppState, AppStateStatus, InteractionManager, Platform, StyleSheet, View } from 'react-native';
+import {
   AdEventType,
+  BannerAd,
+  BannerAdSize,
+  InterstitialAd,
+  MobileAds,
+  RewardedAd,
   RewardedAdEventType,
-  TestIds,
-  MobileAds
+  TestIds
 } from 'react-native-google-mobile-ads';
 
 // Real production Ad Unit IDs
@@ -57,36 +57,40 @@ let isInterstitialLoaded = false;
 let interstitialUnsubscribers: Array<() => void> = [];
 
 export const loadInterstitialAd = () => {
-  try {
-    // cleanup previous listeners
-    if (interstitialUnsubscribers.length) {
-      interstitialUnsubscribers.forEach((u) => {
-        try { u(); } catch {}
+  if (AppState.currentState !== 'active') return;
+  InteractionManager.runAfterInteractions(() => {
+    try {
+      // cleanup previous listeners
+      if (interstitialUnsubscribers.length) {
+        interstitialUnsubscribers.forEach((u) => {
+          try { u(); } catch {}
+        });
+        interstitialUnsubscribers = [];
+      }
+
+      interstitialAd = InterstitialAd.createForAdRequest(INTERSTITIAL_AD_UNIT_ID);
+      
+      const unsubscribeLoaded = interstitialAd.addAdEventListener(AdEventType.LOADED, () => {
+        isInterstitialLoaded = true;
       });
-      interstitialUnsubscribers = [];
+
+      const unsubscribeClosed = interstitialAd.addAdEventListener(AdEventType.CLOSED, () => {
+        isInterstitialLoaded = false;
+        // small delay to avoid race during screen transitions
+        setTimeout(() => loadInterstitialAd(), 500);
+      });
+
+      interstitialUnsubscribers.push(unsubscribeLoaded, unsubscribeClosed);
+
+      interstitialAd.load();
+    } catch (error) {
+      console.error('Error loading interstitial ad:', error);
     }
-
-    interstitialAd = InterstitialAd.createForAdRequest(INTERSTITIAL_AD_UNIT_ID);
-    
-    const unsubscribeLoaded = interstitialAd.addAdEventListener(AdEventType.LOADED, () => {
-      isInterstitialLoaded = true;
-    });
-
-    const unsubscribeClosed = interstitialAd.addAdEventListener(AdEventType.CLOSED, () => {
-      isInterstitialLoaded = false;
-      // small delay to avoid race during screen transitions
-      setTimeout(() => loadInterstitialAd(), 500);
-    });
-
-    interstitialUnsubscribers.push(unsubscribeLoaded, unsubscribeClosed);
-
-    interstitialAd.load();
-  } catch (error) {
-    console.error('Error loading interstitial ad:', error);
-  }
+  });
 };
 
 export const showInterstitialAd = async (): Promise<boolean> => {
+  if (AppState.currentState !== 'active') return false;
   if (isInterstitialLoaded && interstitialAd) {
     try {
       await interstitialAd.show();
@@ -108,35 +112,39 @@ let isRewardedLoaded = false;
 let rewardedUnsubscribers: Array<() => void> = [];
 
 export const loadRewardedAd = () => {
-  try {
-    // cleanup previous listeners
-    if (rewardedUnsubscribers.length) {
-      rewardedUnsubscribers.forEach((u) => {
-        try { u(); } catch {}
+  if (AppState.currentState !== 'active') return;
+  InteractionManager.runAfterInteractions(() => {
+    try {
+      // cleanup previous listeners
+      if (rewardedUnsubscribers.length) {
+        rewardedUnsubscribers.forEach((u) => {
+          try { u(); } catch {}
+        });
+        rewardedUnsubscribers = [];
+      }
+
+      rewardedAd = RewardedAd.createForAdRequest(REWARDED_AD_UNIT_ID);
+      
+      const unsubscribeLoaded = rewardedAd.addAdEventListener(RewardedAdEventType.LOADED, () => {
+        isRewardedLoaded = true;
       });
-      rewardedUnsubscribers = [];
+
+      const unsubscribeEarned = rewardedAd.addAdEventListener(RewardedAdEventType.EARNED_REWARD, () => {
+        isRewardedLoaded = false;
+        setTimeout(() => loadRewardedAd(), 500);
+      });
+
+      rewardedUnsubscribers.push(unsubscribeLoaded, unsubscribeEarned);
+
+      rewardedAd.load();
+    } catch (error) {
+      console.error('Error loading rewarded ad:', error);
     }
-
-    rewardedAd = RewardedAd.createForAdRequest(REWARDED_AD_UNIT_ID);
-    
-    const unsubscribeLoaded = rewardedAd.addAdEventListener(RewardedAdEventType.LOADED, () => {
-      isRewardedLoaded = true;
-    });
-
-    const unsubscribeEarned = rewardedAd.addAdEventListener(RewardedAdEventType.EARNED_REWARD, () => {
-      isRewardedLoaded = false;
-      setTimeout(() => loadRewardedAd(), 500);
-    });
-
-    rewardedUnsubscribers.push(unsubscribeLoaded, unsubscribeEarned);
-
-    rewardedAd.load();
-  } catch (error) {
-    console.error('Error loading rewarded ad:', error);
-  }
+  });
 };
 
 export const showRewardedAd = async (): Promise<boolean> => {
+  if (AppState.currentState !== 'active') return false;
   if (isRewardedLoaded && rewardedAd) {
     try {
       await rewardedAd.show();
@@ -164,22 +172,40 @@ export const initMobileAds = async () => {
     isInitialized = true;
     console.log('AdMob SDK initialized successfully');
     
-    // Load ads after initialization with a delay
-    setTimeout(() => {
+    // Load ads after initialization with a delay and after interactions
+    const run = () => {
       try {
         loadInterstitialAd();
         loadRewardedAd();
       } catch (error) {
         console.error('Error loading ads:', error);
       }
-    }, 1000);
+    };
+    InteractionManager.runAfterInteractions(() => setTimeout(run, 600));
   } catch (error) {
     console.error('Error initializing AdMob SDK:', error);
   }
 };
 
+export const initMobileAdsSafe = () => {
+  if (isInitialized) return;
+  const start = () => InteractionManager.runAfterInteractions(() => initMobileAds());
+  if (AppState.currentState === 'active') {
+    start();
+    return;
+  }
+  const handler = (state: AppStateStatus) => {
+    if (state === 'active') {
+      AppState.removeEventListener('change', handler as any);
+      start();
+    }
+  };
+  // @ts-ignore React Native supports addEventListener('change', ...)
+  AppState.addEventListener('change', handler);
+};
+
 // Legacy function name for backward compatibility
-export const initAds = initMobileAds;
+export const initAds = initMobileAdsSafe;
 
 // Banner Ad Component
 export const AdBanner: React.FC = () => {

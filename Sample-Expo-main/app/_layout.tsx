@@ -1,12 +1,12 @@
-import "react-native-gesture-handler";
 import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
+    DarkTheme,
+    DefaultTheme,
+    ThemeProvider,
 } from "@react-navigation/native";
+import "react-native-gesture-handler";
 
-import { enableScreens } from "react-native-screens";
 import { Stack } from "expo-router";
+import { enableScreens } from "react-native-screens";
 
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
@@ -14,16 +14,14 @@ import "react-native-reanimated";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { FirestoreProvider } from "@/contexts/FirestoreContext";
 import {
-  OnboardingProvider,
-  useOnboarding,
+    OnboardingProvider,
+    useOnboarding,
 } from "@/contexts/OnboardingContext";
 import {
-  ThemeProvider as CustomThemeProvider,
-  useTheme,
+    ThemeProvider as CustomThemeProvider,
+    useTheme,
 } from "@/contexts/theme-provider";
 import { useProtectedRoute } from "@/hooks/useProtectedRoute";
-import { useEffect } from "react";
-import { initMobileAds } from "@/utils/ads";
 
 enableScreens(true);
 
@@ -35,9 +33,6 @@ function AppContent() {
   const { theme } = useTheme();
   const navigationTheme = theme === "dark" ? DarkTheme : DefaultTheme;
 
-  useEffect(() => {
-    initMobileAds();
-  }, []);
 
   // This check is crucial. It prevents the UI from rendering and flashing
   // a screen (e.g., login) before the protected route hook has a chance

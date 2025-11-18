@@ -2,7 +2,7 @@ module.exports = {
   expo: {
     name: "Evergreen Focus",
     slug: "evergreen-focus",
-    version: "1.0.12",
+    version: "1.0.13",
     orientation: "portrait",
     icon: "./assets/images/ios-light.png",
     scheme: "evergreenfocus",
@@ -16,7 +16,7 @@ module.exports = {
         ITSAppUsesNonExemptEncryption: false
       },
       bundleIdentifier: "com.inertia.evergreenfocus",
-      buildNumber: "5"
+      buildNumber: "6"
     },
     android: {
       icon: "./assets/images/adaptive-icon.png",

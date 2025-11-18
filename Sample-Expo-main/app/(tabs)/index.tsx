@@ -21,7 +21,7 @@ import HistoryView from "@/components/dashboard/HistoryView";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
-import { AdBanner, showRewardedAd } from "@/utils/ads";
+import { AdBanner, showRewardedAd, initAds as initMobileAdsSafe } from "@/utils/ads";
 
 export default function DashboardScreen() {
   const { user, loading: authLoading, reloadUser, logout } = useAuth();
@@ -37,6 +37,7 @@ export default function DashboardScreen() {
   useFocusEffect(
     React.useCallback(() => {
       reloadUser?.();
+      try { initMobileAdsSafe(); } catch {}
       return () => {};
     }, [reloadUser])
   );
